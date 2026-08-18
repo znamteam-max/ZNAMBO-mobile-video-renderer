@@ -1,3 +1,4 @@
+// Cloudflare build trigger for free MVP deployment.
 /// <reference path="../worker-configuration.d.ts" />
 
 type AppEnv = Env & { GITHUB_RENDER_TOKEN?: string };
