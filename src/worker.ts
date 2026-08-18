@@ -14,8 +14,16 @@ type JobRecord = {
   outputs?: Array<{ preset: string; key: string }>;
   error?: string;
 };
+type UploadedPart = { partNumber: number; etag: string };
+type QueueRetryOptions = { delaySeconds?: number };
+type QueueMessage<Body> = {
+  readonly body: Body;
+  ack(): void;
+  retry(options?: QueueRetryOptions): void;
+};
+type QueueBatch<Body> = { readonly messages: readonly QueueMessage<Body>[] };
 type UploadCreateBody = { key?: string; contentType?: string };
-type UploadCompleteBody = { key?: string; uploadId?: string; parts?: R2UploadedPart[] };
+type UploadCompleteBody = { key?: string; uploadId?: string; parts?: UploadedPart[] };
 type RenderResponse = { error?: string; outputs?: Array<{ preset: string; key: string }> };
 
 const json = (data: unknown, init: ResponseInit = {}) =>
@@ -192,7 +200,7 @@ export default {
       : env.ASSETS.fetch(request);
   },
 
-  async queue(batch: MessageBatch<RenderMessage>, env: Env) {
+  async queue(batch: QueueBatch<RenderMessage>, env: Env) {
     for (const message of batch.messages) {
       const { jobId, config } = message.body;
       const job = await getJob(env, jobId);
@@ -230,4 +238,4 @@ export default {
       }
     }
   },
-} satisfies ExportedHandler<Env, RenderMessage>;
+};
