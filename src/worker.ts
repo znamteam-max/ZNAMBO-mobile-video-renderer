@@ -80,7 +80,8 @@ export default {
         job.status = 'running'; await putJob(env, job);
         const container = (env.RENDERER as any).getByName(`job-${jobId}`);
         const response = await container.fetch('http://container/render', { method:'POST', headers:{'content-type':'application/json'}, body:JSON.stringify({ jobId, config }) });
-        const payload = await response.json<any>(); if (!response.ok) throw new Error(payload?.error || `Renderer HTTP ${response.status}`);
+        const payload = await response.json() as { error?: string; outputs?: Array<{preset:string;key:string}> };
+        if (!response.ok) throw new Error(payload?.error || `Renderer HTTP ${response.status}`);
         job.status='done'; job.outputs=payload.outputs || []; await putJob(env, job); message.ack();
       } catch (e) {
         job.status='failed'; job.error=e instanceof Error ? e.message : String(e); await putJob(env, job); message.retry({ delaySeconds:5 });
