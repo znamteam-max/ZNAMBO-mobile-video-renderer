@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.wrangler/
+.dev.vars
+*.log
+.DS_Store
+*.mp4
+*.mov
+*.mkv
+renderer/assets/*.ttf
+renderer/assets/*.otf
