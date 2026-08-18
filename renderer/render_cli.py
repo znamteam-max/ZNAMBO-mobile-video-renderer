@@ -7,6 +7,7 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
+import brand_assets
 import server
 
 
@@ -51,6 +52,7 @@ def main():
 
     server.download = download
     server.upload = upload
+    server.sponsor_image = brand_assets.sponsor_image
 
     outputs = server.render_job(args.job_id, config)
     result = {'outputs': outputs}
