@@ -23,4 +23,21 @@ jobs:
       - name: Build
         run: npm run build
       - name: Python syntax check
-        run: python -m py_compile renderer/server.py renderer/render_cli.py
+        run: python -m py_compile renderer/server.py renderer/render_cli.py renderer/brand_assets.py
+      - name: Validate exact sponsor PNG assets
+        run: |
+          python - <<'PY'
+          import struct
+          from pathlib import Path
+
+          expected = {
+              Path('public/brand/winline.png'): (215, 53),
+              Path('public/brand/difference.png'): (325, 49),
+          }
+          for path, size in expected.items():
+              raw = path.read_bytes()
+              assert raw[:8] == b'\x89PNG\r\n\x1a\n', f'{path}: not a PNG'
+              width, height = struct.unpack('>II', raw[16:24])
+              assert (width, height) == size, f'{path}: {(width, height)} != {size}'
+              print(f'{path}: {width}x{height} OK')
+          PY
