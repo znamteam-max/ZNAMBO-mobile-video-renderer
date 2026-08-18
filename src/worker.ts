@@ -1,3 +1,5 @@
+/// <reference path="../worker-configuration.d.ts" />
+
 import { Container, ContainerProxy } from '@cloudflare/containers';
 
 export { ContainerProxy };
