@@ -1,0 +1,9 @@
+{
+  "name": "ZNAMBO Video Renderer",
+  "short_name": "Renderer",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0b0b",
+  "theme_color": "#0b0b0b",
+  "icons": []
+}
