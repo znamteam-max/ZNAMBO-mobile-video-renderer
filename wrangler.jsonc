@@ -15,44 +15,5 @@
       "binding": "MEDIA",
       "bucket_name": "znambo-mobile-video-renderer-media"
     }
-  ],
-  "queues": {
-    "producers": [
-      {
-        "binding": "RENDER_QUEUE",
-        "queue": "znambo-mobile-video-renderer-jobs"
-      }
-    ],
-    "consumers": [
-      {
-        "queue": "znambo-mobile-video-renderer-jobs",
-        "max_batch_size": 1,
-        "max_batch_timeout": 1,
-        "max_retries": 2,
-        "max_concurrency": 3,
-        "dead_letter_queue": "znambo-mobile-video-renderer-dlq"
-      }
-    ]
-  },
-  "containers": [
-    {
-      "class_name": "RenderContainer",
-      "image": "./renderer/Dockerfile",
-      "max_instances": 3
-    }
-  ],
-  "durable_objects": {
-    "bindings": [
-      {
-        "name": "RENDERER",
-        "class_name": "RenderContainer"
-      }
-    ]
-  },
-  "migrations": [
-    {
-      "tag": "v1",
-      "new_sqlite_classes": ["RenderContainer"]
-    }
   ]
 }
