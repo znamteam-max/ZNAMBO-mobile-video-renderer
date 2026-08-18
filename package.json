@@ -5,12 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "cf:types": "wrangler types",
-    "build": "wrangler types && tsc -b && vite build",
+    "cf:types": "wrangler types --include-runtime=false",
+    "build": "wrangler types --include-runtime=false && tsc -b && vite build",
     "preview": "vite preview",
     "cf:dev": "npm run build && wrangler dev",
     "deploy": "npm run build && wrangler deploy",
-    "typecheck": "wrangler types && tsc -b"
+    "typecheck": "wrangler types --include-runtime=false && tsc -b"
   },
   "dependencies": {
     "@cloudflare/containers": "latest",
