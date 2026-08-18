@@ -1,0 +1,72 @@
+name: Render video - free MVP
+
+on:
+  repository_dispatch:
+    types: [render-video]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: render-${{ github.event.client_payload.jobId }}
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      JOB_ID: ${{ github.event.client_payload.jobId }}
+      RENDER_TOKEN: ${{ github.event.client_payload.token }}
+      BASE_URL: ${{ github.event.client_payload.baseUrl }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install FFmpeg and Pillow
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          python -m pip install --disable-pip-version-check pillow
+
+      - name: Fetch render configuration
+        run: |
+          curl --fail --silent --show-error \
+            -H "Authorization: Bearer $RENDER_TOKEN" \
+            "$BASE_URL/api/internal/jobs/$JOB_ID/config" \
+            --output job.json
+
+      - name: Render MP4 files
+        env:
+          R2_BASE: ${{ github.event.client_payload.baseUrl }}/api/internal/jobs/${{ github.event.client_payload.jobId }}/r2/
+          R2_AUTH_TOKEN: ${{ github.event.client_payload.token }}
+        run: |
+          python renderer/render_cli.py \
+            --job-id "$JOB_ID" \
+            --job-file job.json \
+            --result-file result.json
+
+      - name: Mark job complete
+        run: |
+          curl --fail --silent --show-error \
+            -X POST \
+            -H "Authorization: Bearer $RENDER_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data-binary @result.json \
+            "$BASE_URL/api/internal/jobs/$JOB_ID/done"
+
+      - name: Mark job failed
+        if: failure()
+        continue-on-error: true
+        run: |
+          printf '%s' '{"error":"GitHub Actions FFmpeg render failed. Open the workflow run for details."}' > failed.json
+          curl --silent --show-error \
+            -X POST \
+            -H "Authorization: Bearer $RENDER_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data-binary @failed.json \
+            "$BASE_URL/api/internal/jobs/$JOB_ID/failed" || true
