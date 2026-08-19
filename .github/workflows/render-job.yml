@@ -45,10 +45,13 @@ jobs:
           R2_BASE: ${{ github.event.client_payload.baseUrl }}/api/internal/jobs/${{ github.event.client_payload.jobId }}/r2/
           R2_AUTH_TOKEN: ${{ github.event.client_payload.token }}
         run: |
+          set +e
           python renderer/render_cli.py \
             --job-id "$JOB_ID" \
             --job-file job.json \
-            --result-file result.json
+            --result-file result.json 2>&1 | tee render.log
+          code=${PIPESTATUS[0]}
+          exit "$code"
 
       - name: Mark job complete
         run: |
@@ -59,11 +62,21 @@ jobs:
             --data-binary @result.json \
             "$BASE_URL/api/internal/jobs/$JOB_ID/done"
 
-      - name: Mark job failed
+      - name: Mark job failed with details
         if: failure()
         continue-on-error: true
         run: |
-          printf '%s' '{"error":"GitHub Actions FFmpeg render failed. Open the workflow run for details."}' > failed.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          log = Path('render.log')
+          if log.exists():
+              detail = log.read_text(encoding='utf-8', errors='replace')[-3500:]
+              message = 'GitHub Actions FFmpeg render failed:\n' + detail
+          else:
+              message = 'GitHub Actions render failed before FFmpeg started. Check workflow setup/fetch steps.'
+          Path('failed.json').write_text(json.dumps({'error': message}, ensure_ascii=False), encoding='utf-8')
+          PY
           curl --silent --show-error \
             -X POST \
             -H "Authorization: Bearer $RENDER_TOKEN" \
