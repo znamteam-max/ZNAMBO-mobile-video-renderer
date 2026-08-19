@@ -10,6 +10,7 @@ from pathlib import Path
 import brand_assets
 import server
 import v2_overlay
+import v3_transform
 
 
 def auth_headers():
@@ -55,6 +56,7 @@ def main():
     server.upload = upload
     server.sponsor_image = brand_assets.sponsor_image
     v2_overlay.install()
+    v3_transform.install()
 
     outputs = server.render_job(args.job_id, config)
     result = {'outputs': outputs}
