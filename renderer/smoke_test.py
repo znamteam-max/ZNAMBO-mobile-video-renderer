@@ -10,6 +10,7 @@ import imageio_ffmpeg
 import brand_assets
 import server
 import v2_overlay
+import v3_transform
 
 
 def main():
@@ -55,16 +56,17 @@ def main():
         server.probe = lambda _path: {'duration': 2.0, 'has_audio': False}
         server.sponsor_image = brand_assets.sponsor_image
         v2_overlay.install()
+        v3_transform.install()
 
         config = {
             'layout': 'single',
             'videoA': {
                 'key': 'uploads/smoke.mp4',
                 'sourceDuration': 2,
-                'trimStart': 0,
-                'trimEnd': 2,
-                'single': {'zoom': 1, 'panX': 0, 'panY': 0},
-                'split': {'zoom': 1, 'panX': 0, 'panY': 0},
+                'trimStart': 0.25,
+                'trimEnd': 1.75,
+                'single': {'zoom': 0.7, 'panX': 0, 'panY': 0},
+                'split': {'zoom': 0.7, 'panX': 0, 'panY': 0},
             },
             'videoB': None,
             'audioMode': 'b',
@@ -107,7 +109,7 @@ def main():
         assert outputs == [{'preset': 'combined', 'key': 'renders/smoke/combined.mp4'}], outputs
         rendered = uploaded.get('renders/smoke/combined.mp4')
         assert rendered and rendered.exists() and rendered.stat().st_size > 10000
-        print(json.dumps({'ok': True, 'bytes': rendered.stat().st_size}))
+        print(json.dumps({'ok': True, 'bytes': rendered.stat().st_size, 'zoom': 0.7, 'trim': [0.25, 1.75]}))
 
 
 if __name__ == '__main__':
