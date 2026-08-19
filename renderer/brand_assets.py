@@ -1,6 +1,12 @@
 from pathlib import Path
 
-from PIL import Image
+from PIL import Image, ImageFile
+
+# The original sponsor PNGs came from exported reference artwork and can contain
+# a truncated final PNG data block. Browsers display them, but Pillow refuses to
+# decode them unless truncated-image recovery is enabled. We immediately
+# re-encode the decoded image into a clean temporary PNG before FFmpeg sees it.
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 W = 1080
 H = 1920
@@ -26,7 +32,10 @@ def sponsor_image(config, workdir, _font_path):
     if not source or not source.exists():
         return None
 
-    image = Image.open(source).convert('RGBA')
+    with Image.open(source) as opened:
+        opened.load()
+        image = opened.convert('RGBA')
+
     scale = clamp(float(cfg.get('scale') or 1), 0.5, 2.0)
     if abs(scale - 1) > 0.001:
         image = image.resize(
@@ -35,7 +44,7 @@ def sponsor_image(config, workdir, _font_path):
         )
 
     target = Path(workdir) / f'sponsor-{sponsor_type}.png'
-    image.save(target)
+    image.save(target, format='PNG', optimize=False)
 
     default_x, default_y = DEFAULTS[sponsor_type]
     x = int(clamp(float(cfg.get('x', default_x)), 0, 0.98) * W)
