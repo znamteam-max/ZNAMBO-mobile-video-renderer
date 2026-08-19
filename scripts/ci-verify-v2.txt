@@ -1,1 +1,1 @@
-verify current V2 build
+verify current V2 build after CI setup fix
