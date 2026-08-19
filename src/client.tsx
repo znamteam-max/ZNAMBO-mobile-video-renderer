@@ -1,11 +1,9 @@
-// VERIFIED V2 frontend deployment trigger 2026-08-19 09:27 MSK
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './AppV2';
+import App from './AppV3';
 import './styles.css';
 import './sponsor-exact.css';
-import './v2.css';
-import './v2-brand.css';
+import './v3.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
