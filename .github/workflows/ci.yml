@@ -25,7 +25,7 @@ jobs:
       - name: Build
         run: npm run build
       - name: Python syntax check
-        run: python -m py_compile renderer/server.py renderer/render_cli.py renderer/brand_assets.py
+        run: python -m py_compile renderer/server.py renderer/render_cli.py renderer/brand_assets.py renderer/v2_overlay.py
       - name: Validate exact sponsor PNG assets
         run: |
           python - <<'PY'
