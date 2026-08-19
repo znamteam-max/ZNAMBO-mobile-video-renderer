@@ -13,18 +13,23 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Install
+      - name: Install frontend dependencies
         run: npm install
-      - name: Build
+      - name: Build frontend and Worker
         run: npm run build
+      - name: Install renderer dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core
+          python -m pip install --disable-pip-version-check pillow
       - name: Python syntax check
-        run: python -m py_compile renderer/server.py renderer/render_cli.py renderer/brand_assets.py renderer/v2_overlay.py
+        run: python -m py_compile renderer/server.py renderer/render_cli.py renderer/brand_assets.py renderer/v2_overlay.py renderer/smoke_test.py
       - name: Validate exact sponsor PNG assets
         run: |
           python - <<'PY'
@@ -42,3 +47,5 @@ jobs:
               assert (width, height) == size, f'{path}: {(width, height)} != {size}'
               print(f'{path}: {width}x{height} OK')
           PY
+      - name: FFmpeg render smoke test
+        run: python renderer/smoke_test.py
