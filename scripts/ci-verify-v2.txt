@@ -1,1 +1,1 @@
-verify current V2 build after CI setup fix
+verify current V2 build with renderer smoke test
