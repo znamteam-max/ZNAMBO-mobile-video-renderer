@@ -1,1 +1,1 @@
-verify renderer test again
+verify sponsor PNG recovery and renderer smoke test
