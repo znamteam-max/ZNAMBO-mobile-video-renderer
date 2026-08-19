@@ -1,1 +1,1 @@
-verify current V2 build with renderer smoke test
+verify fast V2 renderer smoke test
