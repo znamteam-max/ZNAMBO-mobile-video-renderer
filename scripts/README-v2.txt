@@ -1,0 +1,1 @@
+V2 adds title alignment/padding/line spacing and a separate Vsesport logo layer. The renderer consumes projectLogo from the job config.
