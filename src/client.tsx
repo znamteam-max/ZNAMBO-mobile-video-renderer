@@ -1,4 +1,4 @@
-// V2 editor deployment trigger 2026-08-19
+// VERIFIED V2 frontend deployment trigger 2026-08-19 09:27 MSK
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './AppV2';
