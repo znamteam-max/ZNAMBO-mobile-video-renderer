@@ -23,10 +23,8 @@ jobs:
         run: npm install
       - name: Build frontend and Worker
         run: npm run build
-      - name: Install Pillow
-        run: python -m pip install pillow
-      - name: Check FFmpeg
-        run: ffmpeg -version
+      - name: Install renderer dependencies
+        run: python -m pip install pillow imageio-ffmpeg
       - name: Python syntax check
         run: python -m py_compile renderer/server.py renderer/render_cli.py renderer/brand_assets.py renderer/v2_overlay.py renderer/smoke_test.py
       - name: Validate exact sponsor PNG assets
