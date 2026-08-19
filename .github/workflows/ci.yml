@@ -13,7 +13,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -23,11 +23,10 @@ jobs:
         run: npm install
       - name: Build frontend and Worker
         run: npm run build
-      - name: Install renderer dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg fonts-dejavu-core
-          python -m pip install --disable-pip-version-check pillow
+      - name: Install Pillow
+        run: python -m pip install pillow
+      - name: Check FFmpeg
+        run: ffmpeg -version
       - name: Python syntax check
         run: python -m py_compile renderer/server.py renderer/render_cli.py renderer/brand_assets.py renderer/v2_overlay.py renderer/smoke_test.py
       - name: Validate exact sponsor PNG assets
@@ -35,17 +34,16 @@ jobs:
           python - <<'PY'
           import struct
           from pathlib import Path
-
           expected = {
               Path('public/brand/winline.png'): (215, 53),
               Path('public/brand/difference.png'): (325, 49),
           }
           for path, size in expected.items():
               raw = path.read_bytes()
-              assert raw[:8] == b'\x89PNG\r\n\x1a\n', f'{path}: not a PNG'
+              assert raw[:8] == b'\x89PNG\r\n\x1a\n'
               width, height = struct.unpack('>II', raw[16:24])
-              assert (width, height) == size, f'{path}: {(width, height)} != {size}'
-              print(f'{path}: {width}x{height} OK')
+              assert (width, height) == size
+              print(path, width, height)
           PY
       - name: FFmpeg render smoke test
         run: python renderer/smoke_test.py
